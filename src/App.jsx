@@ -3,30 +3,41 @@ import "./App.css";
 
 function App() {
   const [inputValue, setInput] = useState("");
+  const [editInputValue, setEditInput] = useState("");
   const [todoList, setTodo] = useState([]);
-  const [isEdit, setEdit] = useState(false);
 
   const handleChangeInput = (e) => {
     setInput(e.target.value);
   };
-  const handleAddTodo = () => {
-    setTodo((prev) => [...prev, inputValue]);
+  const handleAddTodoButton = () => {
+    setTodo((prev) => [...prev, { text: inputValue, isEdit: false }]);
     setInput("");
   };
 
-  const handleChangeEditInput = (e, idx) => {
-    console.log();
+  const handleChangeEditInput = (e) => {
+    setEditInput(e.target.value);
   };
 
-  const handleClickEditButton = () => {
-    setEdit(true);
+  const handleClickEditButton = (e, idx) => {
+    setTodo((prev) =>
+      prev.map((todo, todoIndex) => {
+        return todoIndex === idx ? { ...todo, isEdit: true } : todo;
+      })
+    );
   };
 
-  const handleEditTodo = (e) => {
-    setEdit(false);
+  const handleClickEditCompleteButton = (e, idx) => {
+    setTodo((prev) =>
+      prev.map((todo, todoIndex) => {
+        return todoIndex === idx
+          ? { text: editInputValue, isEdit: false }
+          : todo;
+      })
+    );
+    setEditInput("");
   };
 
-  const handleRemoveTodo = (idx) => {
+  const handleRemoveTodoButton = (idx) => {
     const newTodoList = todoList.filter((el, todoIdx) => todoIdx !== idx);
 
     setTodo([...newTodoList]);
@@ -37,25 +48,33 @@ function App() {
       <div>
         <h1>todolist</h1>
         <input onChange={handleChangeInput} value={inputValue} type="text" />
-        <button onClick={handleAddTodo}>추가</button>
+        <button onClick={handleAddTodoButton}>추가</button>
         <div className="item-list">
           {todoList.map((todo, index) => (
             <div key={index} className="item">
-              {isEdit ? (
+              {todo.isEdit ? (
                 <input
-                  value={todo}
-                  onChange={(e) => handleChangeEditInput(e, index)}
+                  value={editInputValue}
+                  onChange={(e) => handleChangeEditInput(e)}
                 />
               ) : (
-                <p>{todo}</p>
+                <p>{todo.text}</p>
               )}
-              {isEdit ? (
-                <button onClick={handleEditTodo}>완료</button>
+              {todo.isEdit ? (
+                <button
+                  onClick={(e) => handleClickEditCompleteButton(e, index)}
+                >
+                  수정완료
+                </button>
               ) : (
-                <button onClick={handleClickEditButton}>수정</button>
+                <button onClick={(e) => handleClickEditButton(e, index)}>
+                  수정
+                </button>
               )}
 
-              <button onClick={() => handleRemoveTodo(index)}>삭제</button>
+              <button onClick={() => handleRemoveTodoButton(index)}>
+                삭제
+              </button>
             </div>
           ))}
         </div>
